@@ -9,21 +9,29 @@ socket.emit( "mensaje", "hola mundo !!, te escribo del cliente");
 
 //recibimos mensaje del servidor
 
-socket.on("saludito", (data) => {
-    console.log(data);
+socket.on("productos", (data) => {
+    //console.log(data)
+    renderProductos(data);
 })
-//r3cibimos el array usuarios
 
-socket.on("usuarios", (data) => {
-    console.log(data);
+//funcion para renderizar los productos
+const renderProductos = (productos) => {
+    const contenedorProductos = document.getElementById("contenedorProductos");
+    contenedorProductos.innerHTML = "";
 
-    const listaUsuarios = document.getElementById("lista-usuarios");
-    listaUsuarios.innerHTML="";
+    productos.ForEach ( item => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+        card.innerHTML = `
+                        <p> ${item.id}</p>
+                        <p> ${item.title}</p>
+                        <p> ${item.price}</p>
+                        <button> eliminar </button>
+        `
+        contenedorProductos.appendChild(card);
+    })
+}
+
     
-    data.forEach(usuario => {
-        listaUsuarios.innerHTML += `<li>${usuario.nombre} - ${usuario.apellido}</li> `
 
-    });
-    
 
-})

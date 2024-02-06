@@ -44,26 +44,17 @@ const httpServer = app.listen(PUERTO, () => {
 //configuramos:
 const io = socket(httpServer);
 
-// crear  array de usuarios
-const usuarios = [
-    {id:1, nombre: "lionel", apellido: "messi"},
-    {id:2, nombre: "cristiano", apellido: "ronaldo"},
-    {id:3, nombre: "pocho", apellido: "lavezzi"},
-    {id:4, nombre: "raul", apellido: "carnota"},
-]
+//obtener el array de productos
+const productManager = require("../src/controllers/productManager.js");
+const productmanager = new productManager("./src/models/productos.json")
 
-//abrir coneccion 
-io.on("connection", (socket) => {
+
+//abrir coneccion ,"connection" primer evento para escuchar
+io.on("connection", async(socket) => {
     console.log("un cliente se conecto")
     socket.on("mensaje", (data) => {
         console.log(data);
     })
 
-    //ahora el servidor envia un mensaje
-
-
-    socket.emit("saludito", "holaaa!! cliente")
-
-    //enviamos el array:
-    socket.emit("usuarios",usuarios);
+  socket.emit("productos", await productmanager.getProducts());
 })
