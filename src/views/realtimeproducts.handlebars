@@ -5,6 +5,23 @@
     <h2>productos</h2>
 </div>
 
+<h2>formulario agregar productos</h2>
+
+<form>
+   <input type="text" id="title" placeholder="titulo">
+   <input type="text" id="description" placeholder="descripcion">
+   <input type="number" id="price" placeholder="precio">
+   <input type="text" id="img" value="sin imagen">
+   <input type="text" id="code" placeholder="codigo">
+   <input type="number" id="stock" placeholder="stock">
+   <input type="text" id="category" placeholder="categoria">
+   <select id="status">
+      <option value="true">activo</option>
+      <option value="false">inactivo</option>
+   </select>
+   <button id="btnEnviar">Enviar</button>
+</form>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 

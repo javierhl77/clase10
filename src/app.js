@@ -52,9 +52,19 @@ const productmanager = new productManager("./src/models/productos.json")
 //abrir coneccion ,"connection" primer evento para escuchar
 io.on("connection", async(socket) => {
     console.log("un cliente se conecto")
-    socket.on("mensaje", (data) => {
-        console.log(data);
-    })
+    
 
   socket.emit("productos", await productmanager.getProducts());
+
+  socket.on("eliminarProducto", async(id) => {
+       await productmanager.deleteProduct(id);
+
+       io.socket.emit("productos", await productmanager.getProducts());
+  })
+
+  socket.on("agregarProducto", async(producto) => {
+    await productmanager.addProduct(producto);
+    io.socket.emit("productos", await productmanager.getProducts());
+  })
 })
+
