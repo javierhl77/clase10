@@ -5,8 +5,8 @@ const express = require("express");
 const router = express.Router();
 
 //importar productManager y crear una instancia de productmanager
-const Productmanager = require("../controllers/productManager");
-const productManager = new Productmanager("./src/models/productos.json");
+const Productmanager = require("../controllers/product-manager-db.js");
+const productManager = new Productmanager();
 
 router.get("/", async (req, res) => {
   
@@ -30,7 +30,7 @@ router.get("/", async (req, res) => {
 router.get("/:pid", async (req,res) => {
      let id = req.params.pid;
      try {
-        const productos = await productManager.getProductsById(parseInt(id))
+        const productos = await productManager.getProductsById(id)
         if (!productos){
             res.json({
                 error: "producto no encontrado"
@@ -63,14 +63,31 @@ router.put("/:pid", async(req,res) => {
     let id = req.params.pid;
     const productoActualizado = req.body;
     try {
-        await productManager.updateProduct(parseInt(id),productoActualizado )
+        await productManager.updateProduct(id,productoActualizado )
         res.json({message: "producto actualizado corectanmente"});
     } catch (error) {
         console.log("no pudo actualizar");
         res.status(500).json({error: "error del server"});
 
     }
-})
+});
+
+router.delete("/:pid", async(req,res) => {
+
+    const id = req.params.pid;
+
+    try {
+        await productManager.deleteProduct(id);
+        res.json({
+            message: "producto eliminado con exito"
+        })
+    } catch (error) {
+        console.error("error al eliminar producto, error");
+        res.status(500).json({
+            error: "error nterno del servidor"
+        });
+    }
+});
 
 
 module.exports = router;

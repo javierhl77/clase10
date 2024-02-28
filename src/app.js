@@ -1,15 +1,17 @@
-//** desafio 4 websocket */
+//** desafio 5 complementario */
 // alumno : JAVIER LEZCANO 
 // comision: 50045
 
 const express = require("express");
 
 const app = express();
-const productsRouter = require("./routes/products.router.js");
+const productsRouter = require("./routes/products.Router.js");
 const cartsRouter = require ("./routes/carts.router.js");
 
 
 const viewsRouter = require("./routes/views.router");
+
+require("./database.js");
 
 const socket = require("socket.io");
 
@@ -44,29 +46,26 @@ const httpServer = app.listen(PUERTO, () => {
 // 1) instalar socket.io : npm install socket.io
 //2) importamos el modulo:  const socket = require("socket.io")
 //configuramos:
-const io = socket(httpServer);
+//const io = socket(httpServer);
 
-//obtener el array de productos
-const productManager = require("../src/controllers/productManager.js");
-const productmanager = new productManager("./src/models/productos.json")
+//chat
 
+const MessageModel = require("./models/message.model.js");
+const io = new socket.Server(httpServer);
 
-//abrir coneccion ,"connection" primer evento para escuchar
-io.on("connection", async(socket) => {
-    console.log("un cliente se conecto")
-    
+io.on("connection",  (socket) => {
+    console.log("Nuevo usuario conectado");
 
-  socket.emit("productos", await productmanager.getProducts());
+    socket.on("message", async data => {
 
-  socket.on("eliminarProducto", async(id) => {
-       await productmanager.deleteProduct(id);
+        //Guardo el mensaje en MongoDB: 
+        await MessageModel.create(data);
 
-       io.socket.emit("productos", await productmanager.getProducts());
-  })
+        //Obtengo los mensajes de MongoDB y se los paso al cliente: 
+        const messages = await MessageModel.find();
+        console.log(messages);
+        io.sockets.emit("message", messages);
 
-  socket.on("agregarProducto", async(producto) => {
-    await productmanager.addProduct(producto);
-    io.socket.emit("productos", await productmanager.getProducts());
-  })
+    })
 })
 

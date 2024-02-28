@@ -4,59 +4,48 @@
 const socket = io();
 
 
+//Creamos una variable para guardar el usuario: 
+let user; 
+const chatBox = document.getElementById("chatBox");
 
-socket.on("productos", (data) => {
-    console.log(data)
-    renderProductos(data);
+//Sweet Alert 2: es una librería que nos permite crear alertas personalizadas. 
+
+//Swal es un objeto global que nos permite usar los métodos de la libreria.  
+//Fire es un método que nos permite configurar el alerta.
+
+Swal.fire({
+    title: "Identificate", 
+    input: "text",
+    text: "Ingresa un usuario para identificarte en el chat", 
+    inputValidator: (value) => {
+        return !value && "Necesitas escribir un nombre para continuar"
+    }, 
+    allowOutsideClick: false,
+}).then( result => {
+    user = result.value;
 })
 
-//funcion para renderizar los productos
-const renderProductos = (productos) => {
-    const contenedorProductos = document.getElementById("contenedorProductos");
-    contenedorProductos.innerHTML = "";
 
+chatBox.addEventListener("keyup", (event) => {
+    if(event.key === "Enter") {
+        if(chatBox.value.trim().length > 0) {
+            //trim nos permite sacar los espacios en blanco del principio y del final de un string. 
+            //Si el mensaje tiene más de 0 caracteres, lo enviamos al servidor. 
+            socket.emit("message", {user: user, message: chatBox.value}); 
+            chatBox.value = "";
+        }
+    }
+})
 
-    productos.forEach(item => {
-        const card = document.createElement("div");
-        card.classList.add("card");
-        card.innerHTML = `
-                        <p> ${item.id}</p>
-                        <p> ${item.title}</p>
-                        <p> ${item.price}</p>
-                        <button> eliminar </button>
-        `;
-        contenedorProductos.appendChild(card);
-        card.querySelector("button").addEventListener("click", ()=> {
-            eliminarProducto(item.id);
-        })
-        
+//Listener de Mensajes: 
+
+socket.on("message", data => {
+    let log = document.getElementById("messagesLogs");
+    let messages = "";
+
+    data.forEach( message => {
+        messages = messages + `${message.user} dice: ${message.message} <br>`
     })
 
-}
-
-    const eliminarProducto = (id) => {
-        socket.emit("eliminarProducto" , id);
-    }
-
-//agregar productos por el formulario
-document.getElementById("btnEnviar").addEventListener("click", () => {
-    agregarProducto();
+    log.innerHTML = messages;
 })
-
-//funcion agreagr producto
-
-const agregarProducto = () => {
-
-    const producto = {
-        title: document.getElementById("title").value ,
-        description: document.getElementById("description").value,
-        price: document.getElementById("price").value,
-        img: document.getElementById("img").value,
-        code: document.getElementById("code").value,
-        stock: document.getElementById("stock").value,
-        category: document.getElementById("category").value,
-        status: document.getElementById("status").value,
-    };
-
-    socket.emit("agregarProducto", producto);
-}
